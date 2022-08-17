@@ -1,4 +1,4 @@
-import { Setter } from "solid-js";
+import { Setter } from 'solid-js';
 
 type Lazy<T> = T | (() => T);
 
@@ -79,8 +79,7 @@ export interface ComputedPebbleOptionsWithInitial<T> extends PebbleOptions<T> {
   initialValue: Lazy<T>;
 }
 
-export interface ComputedPebbleOptionsWithoutInitial<T> extends PebbleOptions<T> {
-}
+export type ComputedPebbleOptionsWithoutInitial<T> = PebbleOptions<T>
 
 export type ComputedPebbleOptions<T> =
   | ComputedPebbleOptionsWithInitial<T>

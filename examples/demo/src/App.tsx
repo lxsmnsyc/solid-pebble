@@ -1,6 +1,11 @@
-import { createComputedPebble, createPebble, PebbleBoundary, usePebble } from "solid-pebble";
+import {
+  createComputedPebble,
+  createPebble,
+  PebbleBoundary,
+  usePebble,
+} from 'solid-pebble';
 
-const countPebble = createPebble(0)
+const countPebble = createPebble(0);
 const countTitle = createComputedPebble(
   (context) => `Count: ${context.read(countPebble)}`,
 );
@@ -48,5 +53,5 @@ export default function App() {
         <Decrement />
       </div>
     </PebbleBoundary>
-  )
+  );
 }

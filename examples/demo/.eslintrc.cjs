@@ -1,7 +1,7 @@
 module.exports = {
   "root": true,
   "extends": [
-    "lxsmnsyc/typescript/solid"
+    'lxsmnsyc/typescript/solid',
   ],
   "parserOptions": {
     "project": "./tsconfig.eslint.json",

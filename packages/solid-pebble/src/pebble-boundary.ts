@@ -30,7 +30,7 @@ export function PebbleBoundary(props: PebbleBoundaryProps) {
     get children() {
       return props.children;
     },
-  })
+  });
 }
 
 function usePebbleBoundaryContext(): PebbleManager {

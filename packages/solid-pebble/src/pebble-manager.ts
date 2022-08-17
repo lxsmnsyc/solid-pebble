@@ -6,14 +6,14 @@ import {
   runWithOwner,
   Setter,
   Signal,
-} from "solid-js";
+} from 'solid-js';
 import {
   ComputedPebble,
   Parameter,
   Pebble,
   PebbleContext,
   unwrapLazy,
-} from "./core";
+} from './core';
 
 export default class PebbleManager implements PebbleContext {
   private owner: Owner;
@@ -31,7 +31,7 @@ export default class PebbleManager implements PebbleContext {
     }
     const signal = runWithOwner(
       this.owner,
-      () => createSignal(unwrapLazy(pebble.initialValue), pebble)
+      () => createSignal(unwrapLazy(pebble.initialValue), pebble),
     );
     this.pebbles.set(pebble.name, signal as Signal<any>);
     return signal;
