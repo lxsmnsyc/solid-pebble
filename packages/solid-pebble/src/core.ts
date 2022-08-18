@@ -1,17 +1,5 @@
 import { Accessor, Setter } from 'solid-js';
-
-type Lazy<T> = T | (() => T);
-
-function isLazy<T>(value: Lazy<T>): value is (() => T) {
-  return typeof value === 'function';
-}
-
-export function unwrapLazy<T>(value: Lazy<T>): T {
-  if (isLazy(value)) {
-    return value();
-  }
-  return value;
-}
+import { Lazy, Parameter } from './utils';
 
 export interface Pebble<T> {
   type: 'pebble';
@@ -45,19 +33,15 @@ export function createPebble<T>(
   };
 }
 
-export type Parameter<T> = T extends (arg: infer U) => any
-  ? U
-  : never;
-
 export interface PebbleContext {
   get<T>(pebble: Pebble<T>): T;
   get<T>(pebble: ComputedPebble<T>): T;
-  get<T, A>(pebble: ProxyPebble<T, A>): T;
-  get<T, A>(pebble: CustomPebble<T, A>): T;
+  get<T, A, R>(pebble: ProxyPebble<T, A, R>): T;
+  get<T, A, R>(pebble: CustomPebble<T, A, R>): T;
 
   set<T>(pebble: Pebble<T>, value: Parameter<Setter<T>>): void;
-  set<T, A>(pebble: ProxyPebble<T, A>, action: A): void;
-  set<T, A>(pebble: CustomPebble<T, A>, action: A): void;
+  set<T, A, R>(pebble: ProxyPebble<T, A, R>, action: A): R;
+  set<T, A, R>(pebble: CustomPebble<T, A, R>, action: A): R;
 }
 
 export type ComputedPebbleComputationWithInitial<T> = (context: PebbleContext, prev: T) => T;
@@ -119,22 +103,22 @@ export function createComputedPebble<T>(
   } as ComputedPebbleWithoutInitial<T>;
 }
 
-export type ProxySignal<T, A> = [Accessor<T>, (action: A) => void];
+export type ProxySignal<T, A, R> = [Accessor<T>, (action: A) => R];
 
-export interface ProxyPebble<T, A> extends Omit<Pebble<T>, 'type' | 'initialValue'> {
+export interface ProxyPebble<T, A, R> extends Omit<Pebble<T>, 'type' | 'initialValue'> {
   type: 'proxy';
   get: (context: PebbleContext) => T;
-  set: (context: PebbleContext, action: A) => void;
+  set: (context: PebbleContext, action: A) => R;
 }
 
-export interface ProxyPebbleOptions<T, A> extends PebbleOptions<T> {
+export interface ProxyPebbleOptions<T, A, R> extends PebbleOptions<T> {
   get: (context: PebbleContext) => T;
-  set: (context: PebbleContext, action: A) => void;
+  set: (context: PebbleContext, action: A) => R;
 }
 
-export function createProxyPebble<T, A>(
-  options: ProxyPebbleOptions<T, A>,
-): ProxyPebble<T, A> {
+export function createProxyPebble<T, A, R>(
+  options: ProxyPebbleOptions<T, A, R>,
+): ProxyPebble<T, A, R> {
   return {
     type: 'proxy',
     get: options.get,
@@ -144,29 +128,29 @@ export function createProxyPebble<T, A>(
   };
 }
 
-export interface CustomPebbleMethods<T, A> {
+export interface CustomPebbleMethods<T, A, R> {
   get: (track: () => void) => T;
-  set: (trigger: () => void, action: A) => void;
+  set: (trigger: () => void, action: A) => R;
 }
 
-export type CustomPebbleFactory<T, A> = (context: PebbleContext) => CustomPebbleMethods<T, A>;
+export type CustomPebbleFactory<T, A, R> = (context: PebbleContext) => CustomPebbleMethods<T, A, R>;
 
 export interface CustomPebbleOptions {
   name: string;
 }
 
-export interface CustomPebble<T, A> {
+export interface CustomPebble<T, A, R> {
   type: 'custom';
-  factory: CustomPebbleFactory<T, A>;
+  factory: CustomPebbleFactory<T, A, R>;
   name: string;
 }
 
-export type CustomSignal<T, A> = ProxySignal<T, A>;
+export type CustomSignal<T, A, R> = ProxySignal<T, A, R>;
 
-export function createCustomPebble<T, A>(
-  factory: CustomPebbleFactory<T, A>,
+export function createCustomPebble<T, A, R>(
+  factory: CustomPebbleFactory<T, A, R>,
   options?: CustomPebbleOptions,
-): CustomPebble<T, A> {
+): CustomPebble<T, A, R> {
   return {
     type: 'custom',
     factory,

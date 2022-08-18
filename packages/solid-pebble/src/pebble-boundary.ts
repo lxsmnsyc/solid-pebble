@@ -51,11 +51,11 @@ function usePebbleBoundaryContext(): PebbleManager {
 
 export function usePebble<T>(pebble: Pebble<T>): Signal<T>;
 export function usePebble<T>(pebble: ComputedPebble<T>): Accessor<T>;
-export function usePebble<T, A>(pebble: ProxyPebble<T, A>): ProxySignal<T, A>;
-export function usePebble<T, A>(pebble: CustomPebble<T, A>): CustomSignal<T, A>;
-export function usePebble<T, A>(
-  pebble: Pebble<T> | ComputedPebble<T> | ProxyPebble<T, A> | CustomPebble<T, A>,
-): Signal<T> | Accessor<T> | ProxySignal<T, A> | CustomSignal<T, A> {
+export function usePebble<T, A, R>(pebble: ProxyPebble<T, A, R>): ProxySignal<T, A, R>;
+export function usePebble<T, A, R>(pebble: CustomPebble<T, A, R>): CustomSignal<T, A, R>;
+export function usePebble<T, A, R>(
+  pebble: Pebble<T> | ComputedPebble<T> | ProxyPebble<T, A, R> | CustomPebble<T, A, R>,
+): Signal<T> | Accessor<T> | ProxySignal<T, A, R> | CustomSignal<T, A, R> {
   const ctx = usePebbleBoundaryContext();
   if (pebble.type === 'pebble') {
     return ctx.getPebble(pebble);

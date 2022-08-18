@@ -11,13 +11,12 @@ import {
   ComputedPebble,
   CustomPebble,
   CustomSignal,
-  Parameter,
   Pebble,
   PebbleContext,
   ProxyPebble,
   ProxySignal,
-  unwrapLazy,
 } from './core';
+import { Parameter, unwrapLazy } from './utils';
 
 export default class PebbleManager implements PebbleContext {
   private owner: Owner;
@@ -69,16 +68,16 @@ export default class PebbleManager implements PebbleContext {
     return memo;
   }
 
-  private proxies = new Map<string, ProxySignal<any, any>>();
+  private proxies = new Map<string, ProxySignal<any, any, any>>();
 
-  getProxy<T, A>(pebble: ProxyPebble<T, A>): ProxySignal<T, A> {
+  getProxy<T, A, R>(pebble: ProxyPebble<T, A, R>): ProxySignal<T, A, R> {
     const instance = this.proxies.get(pebble.name);
     if (instance) {
-      return instance as ProxySignal<T, A>;
+      return instance as ProxySignal<T, A, R>;
     }
     const signal = runWithOwner(
       this.owner,
-      (): ProxySignal<T, A> => [
+      (): ProxySignal<T, A, R> => [
         createMemo(
           () => pebble.get(this),
           undefined,
@@ -87,20 +86,20 @@ export default class PebbleManager implements PebbleContext {
         (action: A) => pebble.set(this, action),
       ],
     );
-    this.proxies.set(pebble.name, signal as ProxySignal<any, any>);
+    this.proxies.set(pebble.name, signal as ProxySignal<any, any, any>);
     return signal;
   }
 
-  private customs = new Map<string, CustomSignal<any, any>>();
+  private customs = new Map<string, CustomSignal<any, any, any>>();
 
-  getCustom<T, A>(pebble: CustomPebble<T, A>): CustomSignal<T, A> {
+  getCustom<T, A, R>(pebble: CustomPebble<T, A, R>): CustomSignal<T, A, R> {
     const instance = this.customs.get(pebble.name);
     if (instance) {
-      return instance as CustomSignal<T, A>;
+      return instance as CustomSignal<T, A, R>;
     }
     const signal = runWithOwner(
       this.owner,
-      (): CustomSignal<T, A> => {
+      (): CustomSignal<T, A, R> => {
         const methods = pebble.factory(this);
         const [track, trigger] = createSignal([], {
           equals: false,
@@ -119,7 +118,7 @@ export default class PebbleManager implements PebbleContext {
         ];
       },
     );
-    this.customs.set(pebble.name, signal as CustomSignal<any, any>);
+    this.customs.set(pebble.name, signal as CustomSignal<any, any, any>);
     return signal;
   }
 
@@ -127,16 +126,16 @@ export default class PebbleManager implements PebbleContext {
 
   get<T>(pebble: ComputedPebble<T>): T;
 
-  get<T, A>(pebble: ProxyPebble<T, A>): T;
+  get<T, A, R>(pebble: ProxyPebble<T, A, R>): T;
 
-  get<T, A>(pebble: CustomPebble<T, A>): T;
+  get<T, A, R>(pebble: CustomPebble<T, A, R>): T;
 
-  get<T, A>(
+  get<T, A, R>(
     pebble:
       Pebble<T>
       | ComputedPebble<T>
-      | ProxyPebble<T, A>
-      | CustomPebble<T, A>,
+      | ProxyPebble<T, A, R>
+      | CustomPebble<T, A, R>,
   ) {
     switch (pebble.type) {
       case 'pebble':
@@ -152,29 +151,26 @@ export default class PebbleManager implements PebbleContext {
     }
   }
 
-  set<T>(pebble: Pebble<T>, value: Parameter<Setter<T>>): void;
+  set<T>(pebble: Pebble<T>, value: Parameter<Setter<T>>): T;
 
-  set<T, A>(pebble: ProxyPebble<T, A>, action: A): void;
+  set<T, A, R>(pebble: ProxyPebble<T, A, R>, action: A): R;
 
-  set<T, A>(pebble: CustomPebble<T, A>, action: A): void;
+  set<T, A, R>(pebble: CustomPebble<T, A, R>, action: A): R;
 
-  set<T, A>(
+  set<T, A, R>(
     pebble:
       | Pebble<T>
-      | ProxyPebble<T, A>
-      | CustomPebble<T, A>,
-    action: any,
-  ): void {
+      | ProxyPebble<T, A, R>
+      | CustomPebble<T, A, R>,
+    action: Parameter<Setter<T>> | A,
+  ): T | R {
     switch (pebble.type) {
       case 'pebble':
-        this.getPebble(pebble)[1](action as Parameter<Setter<T>>);
-        break;
+        return this.getPebble(pebble)[1](action as Parameter<Setter<T>>);
       case 'proxy':
-        this.getProxy(pebble)[1](action as A);
-        break;
+        return this.getProxy(pebble)[1](action as A);
       case 'custom':
-        this.getCustom(pebble)[1](action as A);
-        break;
+        return this.getCustom(pebble)[1](action as A);
       default:
         throw new Error('Unknown pebble type');
     }
