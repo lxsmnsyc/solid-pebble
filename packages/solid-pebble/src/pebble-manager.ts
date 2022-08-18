@@ -12,6 +12,8 @@ import {
   Parameter,
   Pebble,
   PebbleContext,
+  ProxyPebble,
+  ProxySignal,
   unwrapLazy,
 } from './core';
 
@@ -65,17 +67,53 @@ export default class PebbleManager implements PebbleContext {
     return memo;
   }
 
-  read<T>(pebble: Pebble<T> | ComputedPebble<T>) {
+  private proxies = new Map<string, ProxySignal<any, any>>();
+
+  getProxy<T, A>(pebble: ProxyPebble<T, A>): ProxySignal<T, A> {
+    const instance = this.proxies.get(pebble.name);
+    if (instance) {
+      return instance as ProxySignal<T, A>;
+    }
+    const signal = runWithOwner(
+      this.owner,
+      (): ProxySignal<T, A> => [
+        createMemo(
+          () => pebble.get(this),
+          undefined,
+          pebble,
+        ),
+        (action: A) => pebble.set(this, action),
+      ],
+    );
+    this.proxies.set(pebble.name, signal as ProxySignal<any, any>);
+    return signal;
+  }
+
+  get<T>(pebble: Pebble<T>): Signal<T>;
+
+  get<T>(pebble: ComputedPebble<T>): Accessor<T>;
+
+  get<T, A>(pebble: ProxyPebble<T, A>): ProxySignal<T, A>;
+
+  get<T, A>(
+    pebble:
+      Pebble<T>
+      | ComputedPebble<T>
+      | ProxyPebble<T, A>,
+  ) {
     if (pebble.type === 'pebble') {
       return this.getPebble(pebble)[0]();
     }
     if (pebble.type === 'computed') {
       return this.getComputed(pebble)();
     }
+    if (pebble.type === 'proxy') {
+      return this.getProxy(pebble)[0]();
+    }
     throw new Error('Unknown pebble type');
   }
 
-  write<T>(pebble: Pebble<T>, value: Parameter<Setter<T>>): T {
+  set<T>(pebble: Pebble<T>, value: Parameter<Setter<T>>): T {
     const setPebble = this.getPebble(pebble)[1];
     return setPebble(value);
   }

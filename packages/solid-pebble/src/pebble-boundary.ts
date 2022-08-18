@@ -7,7 +7,12 @@ import {
   Accessor,
   getOwner,
 } from 'solid-js';
-import { ComputedPebble, Pebble } from './core';
+import {
+  ComputedPebble,
+  Pebble,
+  ProxyPebble,
+  ProxySignal,
+} from './core';
 import PebbleManager from './pebble-manager';
 
 const PebbleBoundaryContext = createContext<PebbleManager>();
@@ -44,15 +49,19 @@ function usePebbleBoundaryContext(): PebbleManager {
 
 export function usePebble<T>(pebble: Pebble<T>): Signal<T>;
 export function usePebble<T>(pebble: ComputedPebble<T>): Accessor<T>;
-export function usePebble<T>(
-  pebble: Pebble<T> | ComputedPebble<T>,
-): Signal<T> | Accessor<T> {
+export function usePebble<T, A>(pebble: ProxyPebble<T, A>): ProxySignal<T, A>;
+export function usePebble<T, A>(
+  pebble: Pebble<T> | ComputedPebble<T> | ProxyPebble<T, A>,
+): Signal<T> | Accessor<T> | ProxySignal<T, A> {
   const ctx = usePebbleBoundaryContext();
   if (pebble.type === 'pebble') {
     return ctx.getPebble(pebble);
   }
   if (pebble.type === 'computed') {
     return ctx.getComputed(pebble);
+  }
+  if (pebble.type === 'proxy') {
+    return ctx.getProxy(pebble);
   }
   throw new Error('Unexpected pebble type.');
 }

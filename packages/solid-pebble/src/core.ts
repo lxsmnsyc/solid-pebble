@@ -1,4 +1,4 @@
-import { Setter } from 'solid-js';
+import { Accessor, Setter } from 'solid-js';
 
 type Lazy<T> = T | (() => T);
 
@@ -50,8 +50,8 @@ export type Parameter<T> = T extends (arg: infer U) => any
   : never;
 
 export interface PebbleContext {
-  read<T>(pebble: Pebble<T> | ComputedPebble<T>): T;
-  write<T>(pebble: Pebble<T>, value: Parameter<Setter<T>>): T;
+  get<T>(pebble: Pebble<T> | ComputedPebble<T>): T;
+  set<T>(pebble: Pebble<T>, value: Parameter<Setter<T>>): T;
 }
 
 export type ComputedPebbleComputationWithInitial<T> = (context: PebbleContext, prev: T) => T;
@@ -111,4 +111,29 @@ export function createComputedPebble<T>(
     computation,
     name: `computed-${getID()}`,
   } as ComputedPebbleWithoutInitial<T>;
+}
+
+export type ProxySignal<T, A> = [Accessor<T>, (action: A) => void];
+
+export interface ProxyPebble<T, A> extends Omit<Pebble<T>, 'type' | 'initialValue'> {
+  type: 'proxy';
+  get: (context: PebbleContext) => T;
+  set: (context: PebbleContext, action: A) => void;
+}
+
+export interface ProxyPebbleOptions<T, A> extends PebbleOptions<T> {
+  get: (context: PebbleContext) => T;
+  set: (context: PebbleContext, action: A) => void;
+}
+
+export function createProxyPebble<T, A>(
+  options: ProxyPebbleOptions<T, A>,
+): ProxyPebble<T, A> {
+  return {
+    type: 'proxy',
+    get: options.get,
+    set: options.set,
+    name: options.name ?? `proxy-${getID()}`,
+    equals: options.equals,
+  };
 }

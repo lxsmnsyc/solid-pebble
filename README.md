@@ -87,7 +87,7 @@ Pebbles themselves are great, just like signals, but how do we make computed peb
 import { createComputedPebble } from 'solid-pebble';
 
 const doubleCountPebble = createComputedPebble(
-  (context) => context.read(countPebble) * 2,
+  (context) => context.get(countPebble) * 2,
 );
 ```
 
@@ -111,7 +111,7 @@ Just like `createMemo`, you can pass an initial value and/or receive the previou
 
 ```js
 const upwardsCount = createComputedPebble((context, previous) => {
-  const current = context.read(countPebble);
+  const current = context.get(countPebble);
   if (previous < current) {
     return current;
   }
