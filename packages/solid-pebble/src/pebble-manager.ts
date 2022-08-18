@@ -9,6 +9,8 @@ import {
 } from 'solid-js';
 import {
   ComputedPebble,
+  CustomPebble,
+  CustomSignal,
   Parameter,
   Pebble,
   PebbleContext,
@@ -89,32 +91,92 @@ export default class PebbleManager implements PebbleContext {
     return signal;
   }
 
-  get<T>(pebble: Pebble<T>): Signal<T>;
+  private customs = new Map<string, CustomSignal<any, any>>();
 
-  get<T>(pebble: ComputedPebble<T>): Accessor<T>;
+  getCustom<T, A>(pebble: CustomPebble<T, A>): CustomSignal<T, A> {
+    const instance = this.customs.get(pebble.name);
+    if (instance) {
+      return instance as CustomSignal<T, A>;
+    }
+    const signal = runWithOwner(
+      this.owner,
+      (): CustomSignal<T, A> => {
+        const methods = pebble.factory(this);
+        const [track, trigger] = createSignal([], {
+          equals: false,
+        });
 
-  get<T, A>(pebble: ProxyPebble<T, A>): ProxySignal<T, A>;
+        return [
+          () => methods.get(() => {
+            track();
+          }),
+          (action) => methods.set(
+            () => {
+              trigger([]);
+            },
+            action,
+          ),
+        ];
+      },
+    );
+    this.customs.set(pebble.name, signal as CustomSignal<any, any>);
+    return signal;
+  }
+
+  get<T>(pebble: Pebble<T>): T;
+
+  get<T>(pebble: ComputedPebble<T>): T;
+
+  get<T, A>(pebble: ProxyPebble<T, A>): T;
+
+  get<T, A>(pebble: CustomPebble<T, A>): T;
 
   get<T, A>(
     pebble:
       Pebble<T>
       | ComputedPebble<T>
-      | ProxyPebble<T, A>,
+      | ProxyPebble<T, A>
+      | CustomPebble<T, A>,
   ) {
-    if (pebble.type === 'pebble') {
-      return this.getPebble(pebble)[0]();
+    switch (pebble.type) {
+      case 'pebble':
+        return this.getPebble(pebble)[0]();
+      case 'computed':
+        return this.getComputed(pebble)();
+      case 'proxy':
+        return this.getProxy(pebble)[0]();
+      case 'custom':
+        return this.getCustom(pebble)[0]();
+      default:
+        throw new Error('Unknown pebble type');
     }
-    if (pebble.type === 'computed') {
-      return this.getComputed(pebble)();
-    }
-    if (pebble.type === 'proxy') {
-      return this.getProxy(pebble)[0]();
-    }
-    throw new Error('Unknown pebble type');
   }
 
-  set<T>(pebble: Pebble<T>, value: Parameter<Setter<T>>): T {
-    const setPebble = this.getPebble(pebble)[1];
-    return setPebble(value);
+  set<T>(pebble: Pebble<T>, value: Parameter<Setter<T>>): void;
+
+  set<T, A>(pebble: ProxyPebble<T, A>, action: A): void;
+
+  set<T, A>(pebble: CustomPebble<T, A>, action: A): void;
+
+  set<T, A>(
+    pebble:
+      | Pebble<T>
+      | ProxyPebble<T, A>
+      | CustomPebble<T, A>,
+    action: any,
+  ): void {
+    switch (pebble.type) {
+      case 'pebble':
+        this.getPebble(pebble)[1](action as Parameter<Setter<T>>);
+        break;
+      case 'proxy':
+        this.getProxy(pebble)[1](action as A);
+        break;
+      case 'custom':
+        this.getCustom(pebble)[1](action as A);
+        break;
+      default:
+        throw new Error('Unknown pebble type');
+    }
   }
 }

@@ -50,8 +50,14 @@ export type Parameter<T> = T extends (arg: infer U) => any
   : never;
 
 export interface PebbleContext {
-  get<T>(pebble: Pebble<T> | ComputedPebble<T>): T;
-  set<T>(pebble: Pebble<T>, value: Parameter<Setter<T>>): T;
+  get<T>(pebble: Pebble<T>): T;
+  get<T>(pebble: ComputedPebble<T>): T;
+  get<T, A>(pebble: ProxyPebble<T, A>): T;
+  get<T, A>(pebble: CustomPebble<T, A>): T;
+
+  set<T>(pebble: Pebble<T>, value: Parameter<Setter<T>>): void;
+  set<T, A>(pebble: ProxyPebble<T, A>, action: A): void;
+  set<T, A>(pebble: CustomPebble<T, A>, action: A): void;
 }
 
 export type ComputedPebbleComputationWithInitial<T> = (context: PebbleContext, prev: T) => T;
@@ -135,5 +141,35 @@ export function createProxyPebble<T, A>(
     set: options.set,
     name: options.name ?? `proxy-${getID()}`,
     equals: options.equals,
+  };
+}
+
+export interface CustomPebbleMethods<T, A> {
+  get: (track: () => void) => T;
+  set: (trigger: () => void, action: A) => void;
+}
+
+export type CustomPebbleFactory<T, A> = (context: PebbleContext) => CustomPebbleMethods<T, A>;
+
+export interface CustomPebbleOptions {
+  name: string;
+}
+
+export interface CustomPebble<T, A> {
+  type: 'custom';
+  factory: CustomPebbleFactory<T, A>;
+  name: string;
+}
+
+export type CustomSignal<T, A> = ProxySignal<T, A>;
+
+export function createCustomPebble<T, A>(
+  factory: CustomPebbleFactory<T, A>,
+  options?: CustomPebbleOptions,
+): CustomPebble<T, A> {
+  return {
+    type: 'custom',
+    factory,
+    name: options?.name ?? `custom-${getID()}`,
   };
 }

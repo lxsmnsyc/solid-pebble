@@ -2,6 +2,7 @@ export {
   createComputedPebble,
   createPebble,
   createProxyPebble,
+  createCustomPebble,
   ComputedPebble,
   ComputedPebbleComputation,
   ComputedPebbleOptions,
@@ -9,6 +10,12 @@ export {
   PebbleOptions,
   ProxyPebble,
   ProxyPebbleOptions,
+  ProxySignal,
+  CustomPebble,
+  CustomPebbleFactory,
+  CustomPebbleMethods,
+  CustomPebbleOptions,
+  CustomSignal,
 } from './core';
 export {
   PebbleBoundary,

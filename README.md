@@ -121,6 +121,76 @@ const upwardsCount = createComputedPebble((context, previous) => {
 });
 ```
 
+### Proxy pebbles
+
+Proxy pebbles are pebbles that are stateless pebbles that you can use to read from and write to pebbles.
+
+Since proxy pebbles are stateless, it doesn't have or need an initial value, it cannot track its previous value nor it doesn't have to receive a value for its setter.
+
+Here's an example that emulates a reducer
+
+```js
+import { createProxyPebble } from 'solid-pebble';
+
+const countPebble = createPebble(0);
+
+const reduce = (state, action) => {
+  switch (action.type) {
+    case 'INCREMENT':
+      return state + 1;
+    case 'DECREMENT':
+      return state - 1;
+    default:
+      return state;
+  }
+}
+
+const reducerPebble = createProxyPebble({
+  get(context) {
+    return context.get(countPebble);
+  },
+  set(context, action) {
+    context.set(countPebble, reduce(context.get(countPebble), action));
+  },
+});
+
+/// ...
+
+const [count, dispatch] = usePebble(reducerPebble);
+
+dispatch({ type: 'INCREMENT' });
+```
+
+### Custom pebbles
+
+Custom pebbles are pebbles where you get to control when it should track and trigger updates. It's like a combination of a normal pebble and a proxy pebble.
+
+```js
+import { createCustomPebble } from 'solid-pebble';
+
+const idlePebble = createCustomPebble((context) => {
+  let value;
+  let schedule;
+
+  return {
+    get(track) {
+      track();
+      return value;
+    },
+    set(trigger, action) {
+      if (schedule) {
+        cancelIdleCallback(schedule);
+      }
+      schedule = requestIdleCallback(() => {
+        value = action;
+        trigger();
+      });
+    },
+  };
+})
+
+```
+
 ## License
 
 MIT © [lxsmnsyc](https://github.com/lxsmnsyc)
