@@ -37,20 +37,20 @@
     "dev": "pridepack dev",
     "test": "vitest"
   },
-  "private": false,
   "description": "State management library for SolidJS",
   "repository": {
-    "url": "",
+    "url": "https://github.com/lxsmnsyc/solid-pebble.git",
     "type": "git"
   },
-  "homepage": "",
+  "homepage": "https://github.com/lxsmnsyc/solid-pebble/tree/main/packages/solid-pebble",
   "bugs": {
-    "url": ""
+    "url": "https://github.com/lxsmnsyc/solid-pebble/issues"
   },
-  "author": "",
   "publishConfig": {
     "access": "public"
   },
+  "author": "Alexis Munsayac",
+  "private": false,
   "types": "./dist/types/index.d.ts",
   "main": "./dist/cjs/production/index.cjs",
   "module": "./dist/esm/production/index.mjs",

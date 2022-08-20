@@ -16,6 +16,7 @@ export {
   CustomPebbleMethods,
   CustomPebbleOptions,
   CustomSignal,
+  PebbleContext,
 } from './core';
 export {
   PebbleBoundary,

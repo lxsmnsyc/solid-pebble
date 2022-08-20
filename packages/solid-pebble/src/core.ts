@@ -1,5 +1,5 @@
 import { Accessor, Setter } from 'solid-js';
-import { Lazy, Parameter } from './utils';
+import { getID, Lazy, Parameter } from './utils';
 
 export interface Pebble<T> {
   type: 'pebble';
@@ -11,14 +11,6 @@ export interface Pebble<T> {
 export interface PebbleOptions<T> {
   name?: string;
   equals?: false | ((prev: T, next: T) => boolean);
-}
-
-let ID = 0;
-
-function getID() {
-  const current = ID;
-  ID += 1;
-  return current;
 }
 
 export function createPebble<T>(

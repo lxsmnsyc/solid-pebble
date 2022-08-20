@@ -14,3 +14,11 @@ export function unwrapLazy<T>(value: Lazy<T>): T {
 export type Parameter<T> = T extends (arg: infer U) => any
   ? U
   : never;
+
+let ID = 0;
+
+export function getID() {
+  const current = ID;
+  ID += 1;
+  return current;
+}
