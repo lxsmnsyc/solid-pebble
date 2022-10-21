@@ -7,7 +7,7 @@ import {
 
 const countPebble = createPebble(0);
 const countTitle = createComputedPebble(
-  (context) => `Count: ${context.read(countPebble)}`,
+  (context) => `Count: ${context.get(countPebble)}`,
 );
 
 function Increment() {
