@@ -35,7 +35,7 @@ export default class PebbleManager implements PebbleContext {
     const signal = runWithOwner(
       this.owner,
       () => createSignal(unwrapLazy(pebble.initialValue), pebble),
-    );
+    )!;
     this.pebbles.set(pebble.name, signal as Signal<any>);
     return signal;
   }
@@ -63,7 +63,7 @@ export default class PebbleManager implements PebbleContext {
           pebble,
         );
       },
-    );
+    )!;
     this.computeds.set(pebble.name, memo as Accessor<any>);
     return memo;
   }
@@ -85,7 +85,7 @@ export default class PebbleManager implements PebbleContext {
         ),
         (action: A) => pebble.set(this, action),
       ],
-    );
+    )!;
     this.proxies.set(pebble.name, signal as ProxySignal<any, any, any>);
     return signal;
   }
@@ -117,7 +117,7 @@ export default class PebbleManager implements PebbleContext {
           ),
         ];
       },
-    );
+    )!;
     this.customs.set(pebble.name, signal as CustomSignal<any, any, any>);
     return signal;
   }

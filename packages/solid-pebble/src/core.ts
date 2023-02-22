@@ -20,7 +20,7 @@ export function createPebble<T>(
   return {
     type: 'pebble',
     initialValue,
-    name: options?.name ?? `pebble-${getID()}`,
+    name: (options && options.name) ? options.name : `pebble-${getID()}`,
     equals: options?.equals,
   };
 }
@@ -146,6 +146,6 @@ export function createCustomPebble<T, A, R>(
   return {
     type: 'custom',
     factory,
-    name: options?.name ?? `custom-${getID()}`,
+    name: (options && options.name) ? options.name : `custom-${getID()}`,
   };
 }
