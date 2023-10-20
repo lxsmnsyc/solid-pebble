@@ -1,13 +1,15 @@
-import {
-  createContext,
+import type {
   JSX,
-  createComponent,
-  useContext,
   Signal,
   Accessor,
-  getOwner,
 } from 'solid-js';
 import {
+  createContext,
+  createComponent,
+  useContext,
+  getOwner,
+} from 'solid-js';
+import type {
   ComputedPebble,
   CustomPebble,
   CustomSignal,
@@ -23,7 +25,7 @@ export interface PebbleBoundaryProps {
   children: JSX.Element;
 }
 
-export function PebbleBoundary(props: PebbleBoundaryProps) {
+export function PebbleBoundary(props: PebbleBoundaryProps): JSX.Element {
   const owner = getOwner();
 
   if (!owner) {

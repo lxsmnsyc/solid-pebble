@@ -1,5 +1,6 @@
-import { Accessor, Setter } from 'solid-js';
-import { getID, Lazy, Parameter } from './utils';
+import type { Accessor, Setter } from 'solid-js';
+import type { Lazy, Parameter } from './utils';
+import { getID } from './utils';
 
 export interface Pebble<T> {
   type: 'pebble';

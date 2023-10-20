@@ -17,7 +17,7 @@ export type Parameter<T> = T extends (arg: infer U) => any
 
 let ID = 0;
 
-export function getID() {
+export function getID(): number {
   const current = ID;
   ID += 1;
   return current;

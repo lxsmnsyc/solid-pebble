@@ -1,13 +1,15 @@
-import {
+import type {
   Accessor,
-  createMemo,
-  createSignal,
   Owner,
-  runWithOwner,
   Setter,
   Signal,
 } from 'solid-js';
 import {
+  createMemo,
+  createSignal,
+  runWithOwner,
+} from 'solid-js';
+import type {
   ComputedPebble,
   CustomPebble,
   CustomSignal,
@@ -16,7 +18,8 @@ import {
   ProxyPebble,
   ProxySignal,
 } from './core';
-import { Parameter, unwrapLazy } from './utils';
+import type { Parameter } from './utils';
+import { unwrapLazy } from './utils';
 
 export default class PebbleManager implements PebbleContext {
   private owner: Owner;
@@ -83,7 +86,7 @@ export default class PebbleManager implements PebbleContext {
           undefined,
           pebble,
         ),
-        (action: A) => pebble.set(this, action),
+        (action: A): R => pebble.set(this, action),
       ],
     )!;
     this.proxies.set(pebble.name, signal as ProxySignal<any, any, any>);
@@ -106,10 +109,10 @@ export default class PebbleManager implements PebbleContext {
         });
 
         return [
-          () => methods.get(() => {
+          (): T => methods.get(() => {
             track();
           }),
-          (action) => methods.set(
+          (action): R => methods.set(
             () => {
               trigger([]);
             },
@@ -136,7 +139,7 @@ export default class PebbleManager implements PebbleContext {
       | ComputedPebble<T>
       | ProxyPebble<T, A, R>
       | CustomPebble<T, A, R>,
-  ) {
+  ): T {
     switch (pebble.type) {
       case 'pebble':
         return this.getPebble(pebble)[0]();
