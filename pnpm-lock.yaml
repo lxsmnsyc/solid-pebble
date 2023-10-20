@@ -27,7 +27,7 @@ importers:
         specifier: ^1.8.1
         version: 1.8.3
       solid-pebble:
-        specifier: 0.1.2
+        specifier: 0.1.3
         version: link:../../packages/solid-pebble
     devDependencies:
       autoprefixer:
