@@ -1,14 +1,5 @@
-import type {
-  Accessor,
-  Owner,
-  Setter,
-  Signal,
-} from 'solid-js';
-import {
-  createMemo,
-  createSignal,
-  runWithOwner,
-} from 'solid-js';
+import type { Accessor, Owner, Setter, Signal } from 'solid-js';
+import { createMemo, createSignal, runWithOwner } from 'solid-js';
 import type {
   ComputedPebble,
   CustomPebble,
@@ -35,9 +26,8 @@ export default class PebbleManager implements PebbleContext {
     if (instance) {
       return instance as Signal<T>;
     }
-    const signal = runWithOwner(
-      this.owner,
-      () => createSignal(unwrapLazy(pebble.initialValue), pebble),
+    const signal = runWithOwner(this.owner, () =>
+      createSignal(unwrapLazy(pebble.initialValue), pebble),
     )!;
     this.pebbles.set(pebble.name, signal as Signal<any>);
     return signal;
@@ -50,23 +40,20 @@ export default class PebbleManager implements PebbleContext {
     if (instance) {
       return instance as Accessor<T>;
     }
-    const memo = runWithOwner(
-      this.owner,
-      () => {
-        if ('initialValue' in pebble) {
-          return createMemo(
-            (prev) => pebble.computation(this, prev),
-            unwrapLazy(pebble.initialValue),
-            pebble,
-          );
-        }
+    const memo = runWithOwner(this.owner, () => {
+      if ('initialValue' in pebble) {
         return createMemo(
-          (prev) => pebble.computation(this, prev),
-          undefined,
+          prev => pebble.computation(this, prev),
+          unwrapLazy(pebble.initialValue),
           pebble,
         );
-      },
-    )!;
+      }
+      return createMemo(
+        prev => pebble.computation(this, prev),
+        undefined,
+        pebble,
+      );
+    })!;
     this.computeds.set(pebble.name, memo as Accessor<any>);
     return memo;
   }
@@ -81,11 +68,7 @@ export default class PebbleManager implements PebbleContext {
     const signal = runWithOwner(
       this.owner,
       (): ProxySignal<T, A, R> => [
-        createMemo(
-          () => pebble.get(this),
-          undefined,
-          pebble,
-        ),
+        createMemo(() => pebble.get(this), undefined, pebble),
         (action: A): R => pebble.set(this, action),
       ],
     )!;
@@ -100,27 +83,23 @@ export default class PebbleManager implements PebbleContext {
     if (instance) {
       return instance as CustomSignal<T, A, R>;
     }
-    const signal = runWithOwner(
-      this.owner,
-      (): CustomSignal<T, A, R> => {
-        const methods = pebble.factory(this);
-        const [track, trigger] = createSignal([], {
-          equals: false,
-        });
+    const signal = runWithOwner(this.owner, (): CustomSignal<T, A, R> => {
+      const methods = pebble.factory(this);
+      const [track, trigger] = createSignal([], {
+        equals: false,
+      });
 
-        return [
-          (): T => methods.get(() => {
+      return [
+        (): T =>
+          methods.get(() => {
             track();
           }),
-          (action): R => methods.set(
-            () => {
-              trigger([]);
-            },
-            action,
-          ),
-        ];
-      },
-    )!;
+        (action): R =>
+          methods.set(() => {
+            trigger([]);
+          }, action),
+      ];
+    })!;
     this.customs.set(pebble.name, signal as CustomSignal<any, any, any>);
     return signal;
   }
@@ -135,7 +114,7 @@ export default class PebbleManager implements PebbleContext {
 
   get<T, A, R>(
     pebble:
-      Pebble<T>
+      | Pebble<T>
       | ComputedPebble<T>
       | ProxyPebble<T, A, R>
       | CustomPebble<T, A, R>,
@@ -161,10 +140,7 @@ export default class PebbleManager implements PebbleContext {
   set<T, A, R>(pebble: CustomPebble<T, A, R>, action: A): R;
 
   set<T, A, R>(
-    pebble:
-      | Pebble<T>
-      | ProxyPebble<T, A, R>
-      | CustomPebble<T, A, R>,
+    pebble: Pebble<T> | ProxyPebble<T, A, R> | CustomPebble<T, A, R>,
     action: Parameter<Setter<T>> | A,
   ): T | R {
     switch (pebble.type) {

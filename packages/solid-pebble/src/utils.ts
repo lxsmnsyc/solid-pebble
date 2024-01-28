@@ -1,6 +1,6 @@
 export type Lazy<T> = T | (() => T);
 
-function isLazy<T>(value: Lazy<T>): value is (() => T) {
+function isLazy<T>(value: Lazy<T>): value is () => T {
   return typeof value === 'function';
 }
 
@@ -11,9 +11,7 @@ export function unwrapLazy<T>(value: Lazy<T>): T {
   return value;
 }
 
-export type Parameter<T> = T extends (arg: infer U) => any
-  ? U
-  : never;
+export type Parameter<T> = T extends (arg: infer U) => any ? U : never;
 
 let ID = 0;
 

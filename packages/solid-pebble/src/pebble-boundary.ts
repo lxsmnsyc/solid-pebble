@@ -1,14 +1,5 @@
-import type {
-  JSX,
-  Signal,
-  Accessor,
-} from 'solid-js';
-import {
-  createContext,
-  createComponent,
-  useContext,
-  getOwner,
-} from 'solid-js';
+import type { Accessor, JSX, Signal } from 'solid-js';
+import { createComponent, createContext, getOwner, useContext } from 'solid-js';
 import type {
   ComputedPebble,
   CustomPebble,
@@ -53,10 +44,18 @@ function usePebbleBoundaryContext(): PebbleManager {
 
 export function usePebble<T>(pebble: Pebble<T>): Signal<T>;
 export function usePebble<T>(pebble: ComputedPebble<T>): Accessor<T>;
-export function usePebble<T, A, R>(pebble: ProxyPebble<T, A, R>): ProxySignal<T, A, R>;
-export function usePebble<T, A, R>(pebble: CustomPebble<T, A, R>): CustomSignal<T, A, R>;
 export function usePebble<T, A, R>(
-  pebble: Pebble<T> | ComputedPebble<T> | ProxyPebble<T, A, R> | CustomPebble<T, A, R>,
+  pebble: ProxyPebble<T, A, R>,
+): ProxySignal<T, A, R>;
+export function usePebble<T, A, R>(
+  pebble: CustomPebble<T, A, R>,
+): CustomSignal<T, A, R>;
+export function usePebble<T, A, R>(
+  pebble:
+    | Pebble<T>
+    | ComputedPebble<T>
+    | ProxyPebble<T, A, R>
+    | CustomPebble<T, A, R>,
 ): Signal<T> | Accessor<T> | ProxySignal<T, A, R> | CustomSignal<T, A, R> {
   const ctx = usePebbleBoundaryContext();
   if (pebble.type === 'pebble') {

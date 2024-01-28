@@ -1,24 +1,28 @@
 import {
+  PebbleBoundary,
   createComputedPebble,
   createPebble,
-  PebbleBoundary,
   usePebble,
 } from 'solid-pebble';
 
 const countPebble = createPebble(0);
 const countTitle = createComputedPebble(
-  (context) => `Count: ${context.get(countPebble)}`,
+  context => `Count: ${context.get(countPebble)}`,
 );
 
 function Increment() {
   const [, setCount] = usePebble(countPebble);
 
   function increment() {
-    setCount((c) => c + 1);
+    setCount(c => c + 1);
   }
 
   return (
-    <button type="button" onClick={increment} class="p-2 rounded-lg bg-gray-900 bg-opacity-10">
+    <button
+      type="button"
+      onClick={increment}
+      class="p-2 rounded-lg bg-gray-900 bg-opacity-10"
+    >
       Increment
     </button>
   );
@@ -28,11 +32,15 @@ function Decrement() {
   const [, setCount] = usePebble(countPebble);
 
   function decrement() {
-    setCount((c) => c - 1);
+    setCount(c => c - 1);
   }
 
   return (
-    <button type="button" onClick={decrement} class="p-2 rounded-lg bg-gray-900 bg-opacity-10">
+    <button
+      type="button"
+      onClick={decrement}
+      class="p-2 rounded-lg bg-gray-900 bg-opacity-10"
+    >
       Decrement
     </button>
   );

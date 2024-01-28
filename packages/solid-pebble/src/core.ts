@@ -21,7 +21,7 @@ export function createPebble<T>(
   return {
     type: 'pebble',
     initialValue,
-    name: (options && options.name) ? options.name : `pebble-${getID()}`,
+    name: options && options.name ? options.name : `pebble-${getID()}`,
     equals: options?.equals,
   };
 }
@@ -37,8 +37,14 @@ export interface PebbleContext {
   set<T, A, R>(pebble: CustomPebble<T, A, R>, action: A): R;
 }
 
-export type ComputedPebbleComputationWithInitial<T> = (context: PebbleContext, prev: T) => T;
-export type ComputedPebbleComputationWithoutInitial<T> = (context: PebbleContext, prev?: T) => T;
+export type ComputedPebbleComputationWithInitial<T> = (
+  context: PebbleContext,
+  prev: T,
+) => T;
+export type ComputedPebbleComputationWithoutInitial<T> = (
+  context: PebbleContext,
+  prev?: T,
+) => T;
 
 export type ComputedPebbleComputation<T> =
   | ComputedPebbleComputationWithInitial<T>
@@ -49,7 +55,8 @@ export interface ComputedPebbleWithInitial<T> extends Omit<Pebble<T>, 'type'> {
   computation: ComputedPebbleComputationWithInitial<T>;
 }
 
-export interface ComputedPebbleWithoutInitial<T> extends Omit<Pebble<T>, 'type' | 'initialValue'> {
+export interface ComputedPebbleWithoutInitial<T>
+  extends Omit<Pebble<T>, 'type' | 'initialValue'> {
   type: 'computed';
   computation: ComputedPebbleComputationWithoutInitial<T>;
 }
@@ -62,7 +69,7 @@ export interface ComputedPebbleOptionsWithInitial<T> extends PebbleOptions<T> {
   initialValue: Lazy<T>;
 }
 
-export type ComputedPebbleOptionsWithoutInitial<T> = PebbleOptions<T>
+export type ComputedPebbleOptionsWithoutInitial<T> = PebbleOptions<T>;
 
 export type ComputedPebbleOptions<T> =
   | ComputedPebbleOptionsWithInitial<T>
@@ -98,7 +105,8 @@ export function createComputedPebble<T>(
 
 export type ProxySignal<T, A, R> = [Accessor<T>, (action: A) => R];
 
-export interface ProxyPebble<T, A, R> extends Omit<Pebble<T>, 'type' | 'initialValue'> {
+export interface ProxyPebble<T, A, R>
+  extends Omit<Pebble<T>, 'type' | 'initialValue'> {
   type: 'proxy';
   get: (context: PebbleContext) => T;
   set: (context: PebbleContext, action: A) => R;
@@ -126,7 +134,9 @@ export interface CustomPebbleMethods<T, A, R> {
   set: (trigger: () => void, action: A) => R;
 }
 
-export type CustomPebbleFactory<T, A, R> = (context: PebbleContext) => CustomPebbleMethods<T, A, R>;
+export type CustomPebbleFactory<T, A, R> = (
+  context: PebbleContext,
+) => CustomPebbleMethods<T, A, R>;
 
 export interface CustomPebbleOptions {
   name: string;
@@ -147,6 +157,6 @@ export function createCustomPebble<T, A, R>(
   return {
     type: 'custom',
     factory,
-    name: (options && options.name) ? options.name : `custom-${getID()}`,
+    name: options && options.name ? options.name : `custom-${getID()}`,
   };
 }

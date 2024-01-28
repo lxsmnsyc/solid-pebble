@@ -14,13 +14,11 @@
     "pridepack"
   ],
   "devDependencies": {
-    "@types/node": "^20.8.7",
-    "eslint": "^8.51.0",
-    "eslint-config-lxsmnsyc": "^0.6.5",
-    "pridepack": "2.5.1",
-    "solid-js": "^1.8.1",
+    "@types/node": "^20.11.5",
+    "pridepack": "2.6.0",
+    "solid-js": "^1.8.12",
     "tslib": "^2.6.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.3.3"
   },
   "peerDependencies": {
     "solid-js": "^1.4"
@@ -29,11 +27,7 @@
     "prepublishOnly": "pridepack clean && pridepack build",
     "build": "pridepack build",
     "type-check": "pridepack check",
-    "lint": "pridepack lint",
     "clean": "pridepack clean",
-    "watch": "pridepack watch",
-    "start": "pridepack start",
-    "dev": "pridepack dev",
     "test": "vitest"
   },
   "description": "State management library for SolidJS",
